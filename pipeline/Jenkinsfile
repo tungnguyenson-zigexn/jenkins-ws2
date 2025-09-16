@@ -90,7 +90,7 @@ pipeline {
             # Execute deployment on EC2 server
             ssh -i "$SSH_KEY_FILE" -p $EC2_PORT -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << EOF
               # Create directory structure
-              BASE_DIR="/usr/share/nginx/html/jenkins/yourname2"
+              BASE_DIR="/usr/share/nginx/html/jenkins/tungnguyen"
               PROJECT_DIR="\$BASE_DIR/web-performance-project1-initial"
               DEPLOY_DIR="\$BASE_DIR/deploy"
               VERSION_DIR="\$DEPLOY_DIR/$DATE_FOLDER"
