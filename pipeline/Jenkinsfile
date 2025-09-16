@@ -20,15 +20,25 @@ pipeline {
     //   }
     // }
 
-    stage('Debug SSH') {
+    stage('Test SSH Connection') {
       steps {
         withCredentials([sshUserPrivateKey(credentialsId: 'SSH_NEWBIE', keyFileVariable: 'SSH_KEY_FILE')]) {
           sh '''
-            echo "=== DEBUG CREDENTIALS ==="
-            echo "SSH_KEY_FILE path: $SSH_KEY_FILE"
-            echo "SSH_KEY_FILE content:"
-            cat $SSH_KEY_FILE
-            echo "=== END DEBUG ==="
+            # Test SSH connection with specific parameters
+            EC2_HOST="118.69.34.46"
+            EC2_USER="newbie"
+            EC2_PORT="3334"
+
+            echo "=== TESTING SSH CONNECTION ==="
+            echo "Host: $EC2_HOST"
+            echo "User: $EC2_USER"
+            echo "Port: $EC2_PORT"
+            echo "================================"
+
+            # Test SSH connection
+            ssh -i "$SSH_KEY_FILE" -p $EC2_PORT -o StrictHostKeyChecking=no -o ConnectTimeout=10 $EC2_USER@$EC2_HOST "echo 'SSH connection successful!'; whoami; pwd; ls -la"
+
+            echo "=== SSH TEST COMPLETED ==="
           '''
         }
       }
