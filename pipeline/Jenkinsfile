@@ -21,68 +21,20 @@ pipeline {
     // }
 
     stage('Deploy to EC2') {
-      when {
-        branch 'main'
-      }
       steps {
         withCredentials([sshUserPrivateKey(credentialsId: 'SSH_NEWBIE', keyFileVariable: 'SSH_KEY_FILE')]) {
           sh '''
-            # EC2 server configuration
-            EC2_HOST="118.69.34.46"
-            EC2_USER="newbie"
-            EC2_PORT="3334"
-            TIMESTAMP=$(date +%Y%m%d%H%M%S)
-            DATE_FOLDER=$(date +%Y%m%d)
+            # Create package
+            tar -czf deploy.tar.gz index.html 404.html css js images
 
-            echo "=== DEPLOYING TO EC2 ==="
-            echo "Host: $EC2_HOST"
-            echo "User: $EC2_USER"
-            echo "Port: $EC2_PORT"
-            echo "Date folder: $DATE_FOLDER"
-            echo "========================="
+            # Upload and deploy
+            scp -i "$SSH_KEY_FILE" -P 3334 deploy.tar.gz newbie@118.69.34.46:/tmp/
 
-            # Create deployment package with only necessary files
-            mkdir -p temp-deploy
-            cp index.html temp-deploy/
-            cp 404.html temp-deploy/
-            cp -r css temp-deploy/
-            cp -r js temp-deploy/
-            cp -r images temp-deploy/
+            # Extract on server
+            ssh -i "$SSH_KEY_FILE" -p 3334 newbie@118.69.34.46 "mkdir -p /usr/share/nginx/html/jenkins/tungnguyen/web-performance-project1-initial && cd /usr/share/nginx/html/jenkins/tungnguyen/web-performance-project1-initial && tar -xzf /tmp/deploy.tar.gz && rm /tmp/deploy.tar.gz"
 
-            # Create tar package
-            tar -czf deploy-package.tar.gz -C temp-deploy .
-
-            # Deploy to EC2 server via SSH using key file
-            scp -i "$SSH_KEY_FILE" -P $EC2_PORT -o StrictHostKeyChecking=no deploy-package.tar.gz $EC2_USER@$EC2_HOST:/tmp/
-
-            # Execute deployment on EC2 server
-            ssh -i "$SSH_KEY_FILE" -p $EC2_PORT -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << EOF
-              # Create directory structure
-              PROJECT_DIR="/usr/share/nginx/html/jenkins/tungnguyen/web-performance-project1-initial"
-
-              echo "Creating project directory..."
-              # Create project directory
-              mkdir -p "\$PROJECT_DIR"
-
-              echo "Extracting files to project directory..."
-              # Extract files directly to project directory
-              cd "\$PROJECT_DIR"
-              tar -xzf /tmp/deploy-package.tar.gz
-
-              echo "Cleaning up temp file..."
-              # Clean up temp file
-              rm -f /tmp/deploy-package.tar.gz
-
-              echo "=== DEPLOYMENT COMPLETED ==="
-              echo "Deployed to: \$PROJECT_DIR"
-              echo "Files deployed:"
-              ls -la "\$PROJECT_DIR"
-              echo "============================="
-            EOF
-
-            # Clean up local temp files
-            rm -rf temp-deploy
-            rm -f deploy-package.tar.gz
+            # Cleanup
+            rm deploy.tar.gz
           '''
         }
       }
