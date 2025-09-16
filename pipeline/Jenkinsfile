@@ -1,10 +1,6 @@
 pipeline {
   agent any
 
-  parameters {
-    string(name: 'KEEP_RELEASES', defaultValue: '5', description: 'Number of releases to keep')
-  }
-
   stages {
     stage('Checkout') {
       steps {
@@ -14,25 +10,26 @@ pipeline {
 
     stage('Build') {
       steps {
-        sh '''
-          if [ -f package.json ]; then
-            (npm ci || npm install)
-          else
-            echo "No package.json, skip install"
-          fi
-        '''
+        sh 'npm install'
       }
     }
 
-    stage('Lint & Test') {
+    stage('Test') {
       steps {
         sh 'npm run test:ci'
       }
     }
 
-    stage('Deploy') {
+    stage('Debug SSH') {
       steps {
-        sh "ansible-playbook /var/jenkins_home/ansible/run-ws.yml -i /var/jenkins_home/ansible/hosts -e \"keep_releases=${params.KEEP_RELEASES}\" -e \"source_dir=${WORKSPACE}\""
+        sshagent(['SSH_KEY']) {
+          sh '''
+            echo "=== DEBUG SSH KEY ==="
+            echo "SSH_KEY environment variable:"
+            echo $SSH_KEY
+            echo "=== END DEBUG ==="
+          '''
+        }
       }
     }
   }
