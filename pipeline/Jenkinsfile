@@ -22,7 +22,7 @@ pipeline {
 
     stage('Debug SSH') {
       steps {
-        withCredentials([sshUserPrivateKey(credentialsId: 'SSH_KEY', keyFileVariable: 'SSH_KEY_FILE')]) {
+        withCredentials([sshUserPrivateKey(credentialsId: 'newbie', keyFileVariable: 'SSH_KEY_FILE')]) {
           sh '''
             echo "=== TEST SSH CONNECTION ==="
             ssh -i $SSH_KEY_FILE -p 3334 -o StrictHostKeyChecking=no newbie@118.69.34.46 "echo 'SSH connection successful'"
