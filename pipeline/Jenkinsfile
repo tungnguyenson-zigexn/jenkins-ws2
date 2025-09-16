@@ -22,12 +22,11 @@ pipeline {
 
     stage('Debug SSH') {
       steps {
-        sshagent(['SSH_KEY']) {
+        withCredentials([sshUserPrivateKey(credentialsId: 'SSH_KEY', keyFileVariable: 'SSH_KEY_FILE')]) {
           sh '''
-            echo "=== DEBUG SSH KEY ==="
-            echo "SSH_KEY environment variable:"
-            echo $SSH_KEY
-            echo "=== END DEBUG ==="
+            echo "=== TEST SSH CONNECTION ==="
+            ssh -i $SSH_KEY_FILE -p 3334 -o StrictHostKeyChecking=no newbie@118.69.34.46 "echo 'SSH connection successful'"
+            echo "=== CONNECTION TEST COMPLETE ==="
           '''
         }
       }
