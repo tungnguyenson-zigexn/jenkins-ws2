@@ -15,7 +15,6 @@ pipeline {
     stage('Build') {
       steps {
         sh '''
-          cd web-performance-project1-initial
           if [ -f package.json ]; then
             (npm ci || npm install)
           else
@@ -27,19 +26,16 @@ pipeline {
 
     stage('Lint & Test') {
       steps {
-        sh '''
-          cd web-performance-project1-initial
-          npm run test:ci
-        '''
+        sh 'npm run test:ci'
       }
     }
 
     stage('Prepare Artifact') {
       steps {
         sh '''
-          # Copy web-performance-project1-initial to deploy location
+          # Copy current directory to deploy location
           mkdir -p /usr/share/nginx/html/jenkins/tungnguyen/web-performance-project1-initial
-          cp -r web-performance-project1-initial/* /usr/share/nginx/html/jenkins/tungnguyen/web-performance-project1-initial/
+          cp -r . /usr/share/nginx/html/jenkins/tungnguyen/web-performance-project1-initial/
         '''
       }
     }
