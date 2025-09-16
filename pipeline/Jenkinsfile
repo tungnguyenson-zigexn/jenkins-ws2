@@ -24,14 +24,17 @@ pipeline {
       steps {
         withCredentials([sshUserPrivateKey(credentialsId: 'SSH_NEWBIE', keyFileVariable: 'SSH_KEY_FILE')]) {
           sh '''
+            # Change to workspace directory
+            cd "$WORKSPACE"
+
             # Create package
             tar -czf deploy.tar.gz index.html 404.html css js images
 
             # Upload and deploy
-            scp -i "$SSH_KEY_FILE" -P 3334 deploy.tar.gz newbie@118.69.34.46:/tmp/
+            scp -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" -P 3334 deploy.tar.gz newbie@118.69.34.46:/tmp/
 
             # Extract on server
-            ssh -i "$SSH_KEY_FILE" -p 3334 newbie@118.69.34.46 "mkdir -p /usr/share/nginx/html/jenkins/tungnguyen/web-performance-project1-initial && cd /usr/share/nginx/html/jenkins/tungnguyen/web-performance-project1-initial && tar -xzf /tmp/deploy.tar.gz && rm /tmp/deploy.tar.gz"
+            ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" -p 3334 newbie@118.69.34.46 "mkdir -p /usr/share/nginx/html/jenkins/tungnguyen/web-performance-project1-initial && cd /usr/share/nginx/html/jenkins/tungnguyen/web-performance-project1-initial && tar -xzf /tmp/deploy.tar.gz && rm /tmp/deploy.tar.gz"
 
             # Cleanup
             rm deploy.tar.gz
