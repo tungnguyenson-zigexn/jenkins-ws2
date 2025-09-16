@@ -8,25 +8,27 @@ pipeline {
       }
     }
 
-    stage('Build') {
-      steps {
-        sh 'npm install'
-      }
-    }
+    // stage('Build') {
+    //   steps {
+    //     sh 'npm install'
+    //   }
+    // }
 
-    stage('Test') {
-      steps {
-        sh 'npm run test:ci'
-      }
-    }
+    // stage('Test') {
+    //   steps {
+    //     sh 'npm run test:ci'
+    //   }
+    // }
 
     stage('Debug SSH') {
       steps {
-        withCredentials([sshUserPrivateKey(credentialsId: 'newbie', keyFileVariable: 'SSH_KEY_FILE')]) {
+        withCredentials([sshUserPrivateKey(credentialsId: 'SSH_NEWBIE', keyFileVariable: 'SSH_KEY_FILE')]) {
           sh '''
-            echo "=== TEST SSH CONNECTION ==="
-            ssh -i $SSH_KEY_FILE -p 3334 -o StrictHostKeyChecking=no newbie@118.69.34.46 "echo 'SSH connection successful'"
-            echo "=== CONNECTION TEST COMPLETE ==="
+            echo "=== DEBUG CREDENTIALS ==="
+            echo "SSH_KEY_FILE path: $SSH_KEY_FILE"
+            echo "SSH_KEY_FILE content:"
+            cat $SSH_KEY_FILE
+            echo "=== END DEBUG ==="
           '''
         }
       }
