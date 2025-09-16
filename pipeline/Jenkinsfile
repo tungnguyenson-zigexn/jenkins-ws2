@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+  parameters {
+    string(name: 'KEEP_RELEASES', defaultValue: '5', description: 'Number of releases to keep')
+  }
+
   stages {
     stage('Checkout') {
       steps {
@@ -11,6 +15,7 @@ pipeline {
     stage('Build') {
       steps {
         sh '''
+          cd web-performance-project1-initial
           if [ -f package.json ]; then
             (npm ci || npm install)
           else
@@ -22,7 +27,26 @@ pipeline {
 
     stage('Lint & Test') {
       steps {
-        sh 'npm run test:ci'
+        sh '''
+          cd web-performance-project1-initial
+          npm run test:ci
+        '''
+      }
+    }
+
+    stage('Prepare Artifact') {
+      steps {
+        sh '''
+          # Copy web-performance-project1-initial to deploy location
+          mkdir -p /usr/share/nginx/html/jenkins/tungnguyen/web-performance-project1-initial
+          cp -r web-performance-project1-initial/* /usr/share/nginx/html/jenkins/tungnguyen/web-performance-project1-initial/
+        '''
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        sh "ansible-playbook /var/jenkins_home/ansible/run-ws.yml -i /var/jenkins_home/ansible/hosts -e \"keep_releases=${params.KEEP_RELEASES}\""
       }
     }
   }
