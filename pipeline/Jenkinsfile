@@ -115,7 +115,6 @@ pipeline {
           color: 'good',
           tokenCredentialId: 'SLACK_KEY',
           message: message,
-          teamDomain: 'venture-vn',
           channel: '#lnd-2025-workshop'
         )
       }
@@ -133,7 +132,6 @@ pipeline {
           color: 'danger',
           tokenCredentialId: 'SLACK_KEY',
           message: message,
-          teamDomain: 'venture-vn',
           channel: '#lnd-2025-workshop'
         )
       }
