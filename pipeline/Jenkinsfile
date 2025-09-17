@@ -103,10 +103,11 @@ pipeline {
               # xargs -r rm -rf removes them (xargs -r means don't run if no input)
               # Exclude 'current' symlink from cleanup
               echo \"Cleaning up old deployments...\"
-              KEEP_COUNT=$((KEEP_VERSIONS + 1))
+              KEEP_COUNT=$((${KEEP_VERSIONS} + 1))
+              echo \"Keep count: \$KEEP_COUNT\"
               ls -1t | grep -v '^current$' | tail -n +\$KEEP_COUNT | xargs -r rm -rf
 
-              echo \"✅ Cleanup completed. Kept $KEEP_VERSIONS latest versions.\"
+              echo \"✅ Cleanup completed. Kept ${KEEP_VERSIONS} latest versions.\"
             "
 
             echo "🎉 Deployment completed successfully!"
