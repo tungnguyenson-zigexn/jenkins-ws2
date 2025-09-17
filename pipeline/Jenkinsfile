@@ -62,34 +62,33 @@ pipeline {
               echo 'Directory created successfully'
             "
 
-            # Create deployment package
-            echo "==> Creating deployment package..."
-            tar -czf deploy.tar.gz .
-            echo "✅ Package created: deploy.tar.gz"
+            # Generate timestamp for deployment
+            TIMESTAMP=$(date +%Y%m%d%H%M%S)
+            echo "==> Deployment timestamp: $TIMESTAMP"
 
-            # Upload to server
-            echo "==> Uploading package to server..."
-            scp -i "$SSH_KEY_FILE" -P $SSH_PORT deploy.tar.gz $DEPLOY_SERVER:$DEPLOY_DIR/
-            echo "✅ Package uploaded successfully"
-
-            # Extract on server
-            echo "==> Extracting package on server..."
+            # Create deploy directory with timestamp
+            echo "==> Creating deploy directory with timestamp on server..."
             ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
-              set -e
-              cd $DEPLOY_DIR
-              mkdir -p $PROJECT_NAME
-              tar -xzf deploy.tar.gz -C $PROJECT_NAME
-              rm deploy.tar.gz
-              echo 'Extraction completed successfully'
+              mkdir -p $DEPLOY_DIR/$PROJECT_NAME/deploy/$TIMESTAMP
+              echo 'Deploy directory created successfully: deploy/$TIMESTAMP'
             "
-            echo "✅ Package extracted successfully"
 
-            # Cleanup local package
-            echo "==> Cleaning up local files..."
-            rm -f deploy.tar.gz
+            # Upload index.html to timestamped directory
+            echo "==> Uploading index.html to server..."
+            scp -i "$SSH_KEY_FILE" -P $SSH_PORT index.html $DEPLOY_SERVER:$DEPLOY_DIR/$PROJECT_NAME/deploy/$TIMESTAMP/
+            echo "✅ index.html uploaded successfully"
+
+            # Create symlink to current deployment (Capistrano style)
+            echo "==> Creating symlink to current deployment..."
+            ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
+              cd $DEPLOY_DIR/$PROJECT_NAME/deploy
+              ln -sfn $TIMESTAMP current
+              echo 'Symlink created: current -> $TIMESTAMP'
+            "
 
             echo "🎉 Deployment completed successfully!"
-            echo "==> Application deployed to: $DEPLOY_SERVER:$DEPLOY_DIR/$PROJECT_NAME"
+            echo "==> index.html deployed to: $DEPLOY_SERVER:$DEPLOY_DIR/$PROJECT_NAME/deploy/$TIMESTAMP/"
+            echo "==> Current symlink: $DEPLOY_SERVER:$DEPLOY_DIR/$PROJECT_NAME/deploy/current/"
           '''
         }
       }
