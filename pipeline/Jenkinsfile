@@ -109,7 +109,7 @@ pipeline {
           def payload = """{"text":"${message}"}"""
           sh """curl -X POST -H 'Content-type: application/json' \\
                --data '${payload}' \\
-               "${SLACK_WEBHOOK}" """
+               "https://venture-vn.slack.com/services/hooks/jenkins-ci?token=${SLACK_WEBHOOK}" """
         }
       }
     }
@@ -120,7 +120,7 @@ pipeline {
           def payload = """{"text":"${message}"}"""
           sh """curl -X POST -H 'Content-type: application/json' \\
                --data '${payload}' \\
-               "${SLACK_WEBHOOK}" """
+               "https://venture-vn.slack.com/services/hooks/jenkins-ci?token=${SLACK_WEBHOOK}" """
         }
       }
     }
