@@ -112,18 +112,17 @@ pipeline {
           Timestamp: ${new Date().format('yyyy-MM-dd HH:mm:ss')}
           Build: ${env.BUILD_NUMBER}
           """
-          def payload = [
-            channel: '#lnd-2025-workshop',
-            username: 'Jenkins',
-            icon_emoji: ':white_check_mark:',
-            attachments: [[
-              color: 'good',
-              text: message
-            ]]
-          ]
           sh """
             curl -X POST -H 'Content-type: application/json' \\
-            --data '${groovy.json.JsonBuilder(payload).toPrettyString()}' \\
+            --data '{
+              "channel": "#lnd-2025-workshop",
+              "username": "Jenkins",
+              "icon_emoji": ":white_check_mark:",
+              "attachments": [{
+                "color": "good",
+                "text": "${message.replace('"', '\\"')}"
+              }]
+            }' \\
             ${SLACK_WEBHOOK}
           """
         }
@@ -139,18 +138,17 @@ pipeline {
           Timestamp: ${new Date().format('yyyy-MM-dd HH:mm:ss')}
           Build: ${env.BUILD_NUMBER}
           """
-          def payload = [
-            channel: '#lnd-2025-workshop',
-            username: 'Jenkins',
-            icon_emoji: ':x:',
-            attachments: [[
-              color: 'danger',
-              text: message
-            ]]
-          ]
           sh """
             curl -X POST -H 'Content-type: application/json' \\
-            --data '${groovy.json.JsonBuilder(payload).toPrettyString()}' \\
+            --data '{
+              "channel": "#lnd-2025-workshop",
+              "username": "Jenkins",
+              "icon_emoji": ":x:",
+              "attachments": [{
+                "color": "danger",
+                "text": "${message.replace('"', '\\"')}"
+              }]
+            }' \\
             ${SLACK_WEBHOOK}
           """
         }
