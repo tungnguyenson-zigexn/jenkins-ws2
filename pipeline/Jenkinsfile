@@ -27,46 +27,21 @@ pipeline {
             # Change to workspace directory
             cd "$WORKSPACE"
 
-            # Create package
-            tar -czf deploy.tar.gz index.html 404.html css js images
+            # Check and create directory on server
+            ssh -i "$SSH_KEY_FILE" -p 3334 -o StrictHostKeyChecking=no newbie@118.69.34.46 "
+              # Check if directory exists
+              if [ ! -d '/usr/share/nginx/html/jenkins/tungnguyen' ]; then
+                echo 'Directory /usr/share/nginx/html/jenkins/tungnguyen does not exist, creating...'
+                sudo mkdir -p /usr/share/nginx/html/jenkins/tungnguyen
+                sudo chown newbie:newbie /usr/share/nginx/html/jenkins/tungnguyen
+                echo 'Directory created successfully'
+              else
+                echo 'Directory /usr/share/nginx/html/jenkins/tungnguyen already exists'
+              fi
 
-            # Upload and deploy
-            scp -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" -P 3334 deploy.tar.gz newbie@118.69.34.46:/tmp/
-
-            # Extract on server with versioning
-            ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" -p 3334 newbie@118.69.34.46 "
-              # Create directory structure
-              BASE_DIR='/usr/share/nginx/html/jenkins/tungnguyen'
-              PROJECT_DIR='\$BASE_DIR/web-performance-project1-initial'
-              DEPLOY_DIR='\$BASE_DIR/deploy'
-              DATE_FOLDER=\$(date +%Y%m%d)
-              VERSION_DIR='\$DEPLOY_DIR/\$DATE_FOLDER'
-              CURRENT_LINK='\$DEPLOY_DIR/current'
-
-              # Create directories
-              mkdir -p '\$PROJECT_DIR'
-              mkdir -p '\$VERSION_DIR'
-
-              # Extract to version directory
-              cd '\$VERSION_DIR'
-              tar -xzf /tmp/deploy.tar.gz
-
-              # Copy to project directory
-              cp -r * '\$PROJECT_DIR/'
-
-              # Create symlink
-              ln -sfn '\$VERSION_DIR' '\$CURRENT_LINK'
-
-              # Clean up old versions (keep 5 latest)
-              cd '\$DEPLOY_DIR'
-              ls -t | grep -E '^[0-9]{8}$' | tail -n +6 | xargs -r rm -rf
-
-              # Clean up temp file
-              rm /tmp/deploy.tar.gz
+              # Show directory info
+              ls -la /usr/share/nginx/html/jenkins/
             "
-
-            # Cleanup
-            rm deploy.tar.gz
           '''
         }
       }
