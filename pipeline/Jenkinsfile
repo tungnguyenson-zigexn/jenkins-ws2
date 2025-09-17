@@ -8,17 +8,17 @@ pipeline {
       }
     }
 
-    // stage('Build') {
-    //   steps {
-    //     sh 'npm install'
-    //   }
-    // }
+    stage('Build') {
+      steps {
+        sh 'npm install'
+      }
+    }
 
-    // stage('Test') {
-    //   steps {
-    //     sh 'npm run test:ci'
-    //   }
-    // }
+    stage('Test') {
+      steps {
+        sh 'npm run test:ci'
+      }
+    }
 
     stage('Deploy to EC2') {
       environment {
