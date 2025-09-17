@@ -105,7 +105,7 @@ pipeline {
                 for dir in \$DIRS_TO_DELETE; do
                   if [ -d \"\$dir\" ] && [ \"\$dir\" != \"current\" ] && [ \"\$dir\" != \"\$TIMESTAMP\" ]; then
                     # Double check it's a valid timestamp directory
-                    if echo \"\$dir\" | grep -q '^[0-9]\{14\}\$'; then
+                    if echo \"\$dir\" | grep -q '^[0-9]\\{14\\}$'; then
                       rm -rf \"\$dir\"
                       echo \"Deleted old deployment: \$dir\"
                     else
