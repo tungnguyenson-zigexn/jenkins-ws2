@@ -1,10 +1,6 @@
 pipeline {
   agent any
 
-  parameters {
-    string(name: 'KEEP_VERSIONS', defaultValue: '5', description: 'Number of deployment versions to keep')
-  }
-
   stages {
     stage('Checkout') {
       steps {
@@ -90,8 +86,8 @@ pipeline {
               echo 'Symlink created: current -> $TIMESTAMP'
             "
 
-            # Cleanup old deployments (keep only ${KEEP_VERSIONS} latest versions)
-            echo "==> Cleaning up old deployments (keeping ${KEEP_VERSIONS} latest versions)..."
+            # Cleanup old deployments (keep only 5 latest versions)
+            echo "==> Cleaning up old deployments (keeping 5 latest versions)..."
             ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
               cd $DEPLOY_DIR/$PROJECT_NAME/deploy
 
@@ -100,9 +96,9 @@ pipeline {
 
               # Ansible-style cleanup: simple and effective
               echo \"Cleaning up old deployments...\"
-              ls -1t | grep -v '^current$' | tail -n +$((KEEP_VERSIONS + 1)) | xargs -r rm -rf
+              ls -1t | grep -v '^current$' | tail -n +6 | xargs -r rm -rf
 
-              echo \"✅ Cleanup completed. Kept ${KEEP_VERSIONS} latest versions.\"
+              echo \"✅ Cleanup completed. Kept 5 latest versions.\"
             "
 
             echo "🎉 Deployment completed successfully!"
