@@ -114,7 +114,9 @@ pipeline {
         slackSend(
           color: 'good',
           tokenCredentialId: 'SLACK_KEY',
-          message: message
+          message: message,
+          teamDomain: 'venture-vn',
+          channel: '#lnd-2025-workshop'
         )
       }
     }
@@ -130,7 +132,9 @@ pipeline {
         slackSend(
           color: 'danger',
           tokenCredentialId: 'SLACK_KEY',
-          message: message
+          message: message,
+          teamDomain: 'venture-vn',
+          channel: '#lnd-2025-workshop'
         )
       }
     }
