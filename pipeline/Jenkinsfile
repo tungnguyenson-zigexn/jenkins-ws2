@@ -103,18 +103,24 @@ pipeline {
 
   post {
     success {
-      withCredentials([string(credentialsId: 'SLACK_KEY', variable: 'SLACK_WEBHOOK')]) {
-        script {
+      script {
+        withCredentials([string(credentialsId: 'SLACK_KEY', variable: 'SLACK_WEBHOOK')]) {
           def message = "✅ Deployment Successful - Build ${env.BUILD_NUMBER}"
-          sh "curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"${message}\"}' '${SLACK_WEBHOOK}'"
+          def payload = """{"text":"${message}"}"""
+          sh """curl -X POST -H 'Content-type: application/json' \\
+               --data '${payload}' \\
+               "${SLACK_WEBHOOK}" """
         }
       }
     }
     failure {
-      withCredentials([string(credentialsId: 'SLACK_KEY', variable: 'SLACK_WEBHOOK')]) {
-        script {
+      script {
+        withCredentials([string(credentialsId: 'SLACK_KEY', variable: 'SLACK_WEBHOOK')]) {
           def message = "❌ Deployment Failed - Build ${env.BUILD_NUMBER}"
-          sh "curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"${message}\"}' '${SLACK_WEBHOOK}'"
+          def payload = """{"text":"${message}"}"""
+          sh """curl -X POST -H 'Content-type: application/json' \\
+               --data '${payload}' \\
+               "${SLACK_WEBHOOK}" """
         }
       }
     }
