@@ -33,13 +33,19 @@ pipeline {
               DEPLOY_DIR='/usr/share/nginx/html/jenkins/tungnguyen'
 
               # Check if directory exists
-              if [ ! -d '\$DEPLOY_DIR' ]; then
-                echo 'Directory \$DEPLOY_DIR does not exist, creating...'
-                sudo mkdir -p '\$DEPLOY_DIR'
-                sudo chown newbie:newbie '\$DEPLOY_DIR'
-                echo 'Directory created successfully'
+              if [ ! -d \"\$DEPLOY_DIR\" ]; then
+                echo \"Directory \$DEPLOY_DIR does not exist, creating...\"
+                # Try without sudo first
+                if mkdir -p \"\$DEPLOY_DIR\" 2>/dev/null; then
+                  echo \"Directory created successfully without sudo\"
+                else
+                  echo \"Cannot create without sudo, trying with sudo...\"
+                  sudo mkdir -p \"\$DEPLOY_DIR\"
+                  sudo chown newbie:newbie \"\$DEPLOY_DIR\"
+                  echo \"Directory created successfully with sudo\"
+                fi
               else
-                echo 'Directory \$DEPLOY_DIR already exists'
+                echo \"Directory \$DEPLOY_DIR already exists\"
               fi
             "
           '''
