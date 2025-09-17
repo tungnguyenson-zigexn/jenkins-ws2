@@ -98,14 +98,9 @@ pipeline {
               echo \"Current directories:\"
               ls -la
 
-              # Cleanup using Ansible-style approach: ls -1t (sort by time, newest first)
-              # tail -n +N means skip first (N-1) newest and get the rest (oldest)
-              # xargs -r rm -rf removes them (xargs -r means don't run if no input)
-              # Exclude 'current' symlink from cleanup
+              # Ansible-style cleanup: simple and effective
               echo \"Cleaning up old deployments...\"
-              KEEP_COUNT=$((${KEEP_VERSIONS} + 1))
-              echo \"Keep count: \$KEEP_COUNT\"
-              ls -1t | grep -v '^current$' | tail -n +\$KEEP_COUNT | xargs -r rm -rf
+              ls -1t | grep -v '^current$' | tail -n +$((KEEP_VERSIONS + 1)) | xargs -r rm -rf
 
               echo \"✅ Cleanup completed. Kept ${KEEP_VERSIONS} latest versions.\"
             "
