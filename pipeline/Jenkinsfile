@@ -86,8 +86,8 @@ pipeline {
               echo 'Symlink created: current -> $TIMESTAMP'
             "
 
-            # Cleanup old deployments (keep only 5 latest versions)
-            echo "==> Cleaning up old deployments (keeping 5 latest versions)..."
+            # Cleanup old deployments (keep only 2 latest versions)
+            echo "==> Cleaning up old deployments (keeping 2 latest versions)..."
             ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
               cd $DEPLOY_DIR/$PROJECT_NAME/deploy
 
@@ -96,9 +96,9 @@ pipeline {
               TOTAL_DIRS=\$(echo \"\$TIMESTAMP_DIRS\" | grep -c '^' 2>/dev/null || echo 0)
               echo \"Total deployment directories: \$TOTAL_DIRS\"
 
-              if [ \$TOTAL_DIRS -gt 5 ]; then
+              if [ \$TOTAL_DIRS -gt 2 ]; then
                 # Sort by timestamp (oldest first) and get directories to delete
-                DIRS_TO_DELETE=\$(echo \"\$TIMESTAMP_DIRS\" | sort | head -n \$((TOTAL_DIRS - 5)))
+                DIRS_TO_DELETE=\$(echo \"\$TIMESTAMP_DIRS\" | sort | head -n \$((TOTAL_DIRS - 2)))
                 echo \"Directories to delete: \$DIRS_TO_DELETE\"
 
                 # Delete old directories with safety checks
@@ -113,7 +113,7 @@ pipeline {
                     fi
                   fi
                 done
-                echo \"✅ Cleanup completed. Kept 5 latest versions.\"
+                echo \"✅ Cleanup completed. Kept 2 latest versions.\"
               else
                 echo \"✅ No cleanup needed. Total versions: \$TOTAL_DIRS\"
               fi
@@ -122,7 +122,7 @@ pipeline {
             echo "🎉 Deployment completed successfully!"
             echo "==> index.html deployed to: $DEPLOY_SERVER:$DEPLOY_DIR/$PROJECT_NAME/deploy/$TIMESTAMP/"
             echo "==> Current symlink: $DEPLOY_SERVER:$DEPLOY_DIR/$PROJECT_NAME/deploy/current/"
-            echo "==> Kept 5 latest deployment versions"
+            echo "==> Kept 2 latest deployment versions"
           '''
         }
       }
