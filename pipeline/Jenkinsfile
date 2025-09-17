@@ -91,27 +91,15 @@ pipeline {
             ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
               cd $DEPLOY_DIR/$PROJECT_NAME/deploy
 
-              # Get all timestamp directories (14 digits format: YYYYMMDDHHMMSS)
-              TIMESTAMP_DIRS=\$(ls -1d [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9] 2>/dev/null)
-              TOTAL_DIRS=\$(echo \"\$TIMESTAMP_DIRS\" | grep -c '^' 2>/dev/null || echo 0)
+              # Count timestamp directories
+              TOTAL_DIRS=\$(ls -1d [0-9]* 2>/dev/null | wc -l)
               echo \"Total deployment directories: \$TOTAL_DIRS\"
 
               if [ \$TOTAL_DIRS -gt 2 ]; then
-                # Sort by timestamp (oldest first) and get directories to delete
-                DIRS_TO_DELETE=\$(echo \"\$TIMESTAMP_DIRS\" | sort | head -n \$((TOTAL_DIRS - 2)))
-                echo \"Directories to delete: \$DIRS_TO_DELETE\"
-
-                # Delete old directories with safety checks
-                for dir in \$DIRS_TO_DELETE; do
-                  if [ -d \"\$dir\" ] && [ \"\$dir\" != \"current\" ] && [ \"\$dir\" != \"\$TIMESTAMP\" ]; then
-                    # Double check it's a valid timestamp directory
-                    if echo \"\$dir\" | grep -q '^[0-9]\\{14\\}$'; then
-                      rm -rf \"\$dir\"
-                      echo \"Deleted old deployment: \$dir\"
-                    else
-                      echo \"⚠️  Skipping invalid directory: \$dir\"
-                    fi
-                  fi
+                # Get oldest directories to delete
+                ls -1d [0-9]* 2>/dev/null | sort | head -n \$((TOTAL_DIRS - 2)) | while read dir; do
+                  rm -rf \"\$dir\"
+                  echo \"✅ Deleted old deployment: \$dir\"
                 done
                 echo \"✅ Cleanup completed. Kept 2 latest versions.\"
               else
