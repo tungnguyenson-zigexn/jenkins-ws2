@@ -20,85 +20,86 @@ pipeline {
       }
     }
 
-  //   stage('Deploy to EC2') {
-  //     environment {
-  //       DEPLOY_SERVER = 'newbie@118.69.34.46'
-  //       SSH_PORT = '3334'
-  //       DEPLOY_DIR = '/usr/share/nginx/html/jenkins/tungnguyen'
-  //       PROJECT_NAME = 'web-performance-project1-initial'
-  //     }
-  //     steps {
-  //       withCredentials([sshUserPrivateKey(credentialsId: 'SSH_NEWBIE', keyFileVariable: 'SSH_KEY_FILE')]) {
-  //         sh '''
-  //           set -e
+    // stage('Deploy to EC2') {
+    //   environment {
+    //     DEPLOY_SERVER = 'newbie@118.69.34.46'
+    //     SSH_PORT = '3334'
+    //     DEPLOY_DIR = '/usr/share/nginx/html/jenkins/tungnguyen'
+    //     PROJECT_NAME = 'web-performance-project1-initial'
+    //   }
+    //   steps {
+    //     withCredentials([sshUserPrivateKey(credentialsId: 'SSH_NEWBIE', keyFileVariable: 'SSH_KEY_FILE')]) {
+    //       sh '''
+    //         set -e
 
-  //           echo "==> Starting deployment process..."
-  //           echo "==> Server: $DEPLOY_SERVER"
-  //           echo "==> Port: $SSH_PORT"
-  //           echo "==> Deploy directory: $DEPLOY_DIR"
+    //         echo "==> Starting deployment process..."
+    //         echo "==> Server: $DEPLOY_SERVER"
+    //         echo "==> Port: $SSH_PORT"
+    //         echo "==> Deploy directory: $DEPLOY_DIR"
 
-  //           # Validate SSH key file
-  //           if [[ ! -f "$SSH_KEY_FILE" ]]; then
-  //             echo "❌ SSH key file not found: $SSH_KEY_FILE"
-  //             exit 1
-  //           fi
+    //         # Validate SSH key file
+    //         if [[ ! -f "$SSH_KEY_FILE" ]]; then
+    //           echo "❌ SSH key file not found: $SSH_KEY_FILE"
+    //           exit 1
+    //         fi
 
-  //           # Test SSH connection
-  //           echo "==> Testing SSH connection..."
-  //           if ! ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o ConnectTimeout=10 -o StrictHostKeyChecking=no $DEPLOY_SERVER "echo 'SSH connection successful'" >/dev/null 2>&1; then
-  //             echo "❌ Cannot connect to server: $DEPLOY_SERVER"
-  //             exit 1
-  //           fi
-  //           echo "✅ SSH connection verified"
+    //         # Test SSH connection
+    //         echo "==> Testing SSH connection..."
+    //         if ! ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o ConnectTimeout=10 -o StrictHostKeyChecking=no $DEPLOY_SERVER "echo 'SSH connection successful'" >/dev/null 2>&1; then
+    //           echo "❌ Cannot connect to server: $DEPLOY_SERVER"
+    //           exit 1
+    //         fi
+    //         echo "✅ SSH connection verified"
 
-  //           # Change to workspace directory
-  //           echo "==> Change to workspace: $WORKSPACE"
-  //           cd "$WORKSPACE"
+    //         # Change to workspace directory
+    //         echo "==> Change to workspace: $WORKSPACE"
+    //         cd "$WORKSPACE"
 
-  //           # Create directory on server
-  //           echo "==> Creating directory on server..."
-  //           ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
-  //             mkdir -p $DEPLOY_DIR
-  //             echo 'Directory created successfully'
-  //           "
+    //         # Create directory on server
+    //         echo "==> Creating directory on server..."
+    //         ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
+    //           mkdir -p $DEPLOY_DIR
+    //           echo 'Directory created successfully'
+    //         "
 
-  //           # Generate timestamp for deployment
-  //           TIMESTAMP=$(date +%Y%m%d%H%M%S)
-  //           echo "==> Deployment timestamp: $TIMESTAMP"
+    //         # Generate timestamp for deployment
+    //         TIMESTAMP=$(date +%Y%m%d%H%M%S)
+    //         echo "==> Deployment timestamp: $TIMESTAMP"
 
-  //           # Create deploy directory with timestamp
-  //           echo "==> Creating deploy directory with timestamp on server..."
-  //           ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
-  //             mkdir -p $DEPLOY_DIR/$PROJECT_NAME/deploy/$TIMESTAMP
-  //             echo 'Deploy directory created successfully: deploy/$TIMESTAMP'
-  //           "
+    //         # Create deploy directory with timestamp
+    //         echo "==> Creating deploy directory with timestamp on server..."
+    //         ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
+    //           mkdir -p $DEPLOY_DIR/$PROJECT_NAME/deploy/$TIMESTAMP
+    //           echo 'Deploy directory created successfully: deploy/$TIMESTAMP'
+    //         "
 
-  //           # Upload index.html to timestamped directory
-  //           echo "==> Uploading index.html to server..."
-  //           scp -i "$SSH_KEY_FILE" -P $SSH_PORT index.html $DEPLOY_SERVER:$DEPLOY_DIR/$PROJECT_NAME/deploy/$TIMESTAMP/
-  //           echo "✅ index.html uploaded successfully"
+    //         # Upload index.html to timestamped directory
+    //         echo "==> Uploading index.html to server..."
+    //         scp -i "$SSH_KEY_FILE" -P $SSH_PORT index.html $DEPLOY_SERVER:$DEPLOY_DIR/$PROJECT_NAME/deploy/$TIMESTAMP/
+    //         echo "✅ index.html uploaded successfully"
 
-  //           # Create symlink to current deployment (Capistrano style)
-  //           echo "==> Creating symlink to current deployment..."
-  //           ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
-  //             cd $DEPLOY_DIR/$PROJECT_NAME/deploy
-  //             ln -sfn $TIMESTAMP current
-  //             echo 'Symlink created: current -> $TIMESTAMP'
-  //           "
+    //         # Create symlink to current deployment (Capistrano style)
+    //         echo "==> Creating symlink to current deployment..."
+    //         ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
+    //           cd $DEPLOY_DIR/$PROJECT_NAME/deploy
+    //           ln -sfn $TIMESTAMP current
+    //           echo 'Symlink created: current -> $TIMESTAMP'
+    //         "
 
-  //           # Cleanup old deployments (keep only 5 latest versions)
-  //           echo "==> Cleaning up old deployments (keeping 5 latest versions)..."
-  //           ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
-  //             cd $DEPLOY_DIR/$PROJECT_NAME/deploy && ls -1t | grep -v '^current$' | tail -n +6 | xargs -r rm -rf
+    //         # Cleanup old deployments (keep only 5 latest versions)
+    //         echo "==> Cleaning up old deployments (keeping 5 latest versions)..."
+    //         ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
+    //           cd $DEPLOY_DIR/$PROJECT_NAME/deploy && ls -1t | grep -v '^current$' | tail -n +6 | xargs -r rm -rf
 
-  //             echo \"✅ Cleanup completed. Kept 5 latest versions.\"
-  //           "
+    //           echo \"✅ Cleanup completed. Kept 5 latest versions.\"
+    //         "
 
-  //           echo "🎉 Deployment completed successfully!"
-  //         '''
-  //       }
-  //     }
-  //   }
+    //         echo "🎉 Deployment completed successfully!"
+    //       '''
+    //     }
+    //   }
+    // }
+  }
 
   post {
     success {
