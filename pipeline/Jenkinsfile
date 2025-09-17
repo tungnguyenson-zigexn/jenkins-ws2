@@ -96,7 +96,7 @@ pipeline {
 
               # Ansible-style cleanup: simple and effective
               echo \"Cleaning up old deployments...\"
-              ls -1t | grep -v '^current$' | tail -n +6 | xargs -r rm -rf
+              ls -1t | grep -v '^current$' | tail -n +5 | xargs -r rm -rf
 
               echo \"✅ Cleanup completed. Kept 5 latest versions.\"
             "
