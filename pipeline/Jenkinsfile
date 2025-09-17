@@ -21,17 +21,75 @@ pipeline {
     // }
 
     stage('Deploy to EC2') {
+      environment {
+        DEPLOY_SERVER = 'newbie@118.69.34.46'
+        SSH_PORT = '3334'
+        DEPLOY_DIR = '/usr/share/nginx/html/jenkins/tungnguyen'
+        PROJECT_NAME = 'web-performance-project1-initial'
+      }
       steps {
         withCredentials([sshUserPrivateKey(credentialsId: 'SSH_NEWBIE', keyFileVariable: 'SSH_KEY_FILE')]) {
           sh '''
+            set -e
+
+            echo "==> Starting deployment process..."
+            echo "==> Server: $DEPLOY_SERVER"
+            echo "==> Port: $SSH_PORT"
+            echo "==> Deploy directory: $DEPLOY_DIR"
+
+            # Validate SSH key file
+            if [[ ! -f "$SSH_KEY_FILE" ]]; then
+              echo "❌ SSH key file not found: $SSH_KEY_FILE"
+              exit 1
+            fi
+
+            # Test SSH connection
+            echo "==> Testing SSH connection..."
+            if ! ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o ConnectTimeout=10 -o StrictHostKeyChecking=no $DEPLOY_SERVER "echo 'SSH connection successful'" >/dev/null 2>&1; then
+              echo "❌ Cannot connect to server: $DEPLOY_SERVER"
+              exit 1
+            fi
+            echo "✅ SSH connection verified"
+
             # Change to workspace directory
+            echo "==> Change to workspace: $WORKSPACE"
             cd "$WORKSPACE"
 
             # Create directory on server
-            ssh -i "$SSH_KEY_FILE" -p 3334 -o StrictHostKeyChecking=no newbie@118.69.34.46 "
-              mkdir -p /usr/share/nginx/html/jenkins/tungnguyen
+            echo "==> Creating directory on server..."
+            ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
+              mkdir -p $DEPLOY_DIR
               echo 'Directory created successfully'
             "
+
+            # Create deployment package
+            echo "==> Creating deployment package..."
+            tar -czf deploy.tar.gz index.html 404.html css js images
+            echo "✅ Package created: deploy.tar.gz"
+
+            # Upload to server
+            echo "==> Uploading package to server..."
+            scp -i "$SSH_KEY_FILE" -P $SSH_PORT deploy.tar.gz $DEPLOY_SERVER:$DEPLOY_DIR/
+            echo "✅ Package uploaded successfully"
+
+            # Extract on server
+            echo "==> Extracting package on server..."
+            ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
+              set -e
+              cd $DEPLOY_DIR
+              mkdir -p $PROJECT_NAME
+              tar -xzf deploy.tar.gz -C $PROJECT_NAME
+              rm deploy.tar.gz
+              echo 'Extraction completed successfully'
+            "
+            echo "✅ Package extracted successfully"
+
+            # Cleanup local package
+            echo "==> Cleaning up local files..."
+            rm -f deploy.tar.gz
+
+            echo "🎉 Deployment completed successfully!"
+            echo "==> Application deployed to: $DEPLOY_SERVER:$DEPLOY_DIR/$PROJECT_NAME"
           '''
         }
       }
