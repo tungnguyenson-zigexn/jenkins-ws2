@@ -103,37 +103,57 @@ pipeline {
 
   post {
     success {
-      script {
-        def message = """
-        ✅ *Deployment Successful*
-        Project: web-performance-project1-initial
-        Server: newbie@118.69.34.46
-        Timestamp: ${new Date().format('yyyy-MM-dd HH:mm:ss')}
-        Build: ${env.BUILD_NUMBER}
-        """
-        slackSend(
-          color: 'good',
-          tokenCredentialId: 'SLACK_KEY',
-          message: message,
-          channel: '#lnd-2025-workshop'
-        )
+      withCredentials([string(credentialsId: 'SLACK_KEY', variable: 'SLACK_WEBHOOK')]) {
+        script {
+          def message = """
+          ✅ *Deployment Successful*
+          Project: web-performance-project1-initial
+          Server: newbie@118.69.34.46
+          Timestamp: ${new Date().format('yyyy-MM-dd HH:mm:ss')}
+          Build: ${env.BUILD_NUMBER}
+          """
+          def payload = [
+            channel: '#lnd-2025-workshop',
+            username: 'Jenkins',
+            icon_emoji: ':white_check_mark:',
+            attachments: [[
+              color: 'good',
+              text: message
+            ]]
+          ]
+          sh """
+            curl -X POST -H 'Content-type: application/json' \\
+            --data '${groovy.json.JsonBuilder(payload).toPrettyString()}' \\
+            ${SLACK_WEBHOOK}
+          """
+        }
       }
     }
     failure {
-      script {
-        def message = """
-        ❌ *Deployment Failed*
-        Project: web-performance-project1-initial
-        Server: newbie@118.69.34.46
-        Timestamp: ${new Date().format('yyyy-MM-dd HH:mm:ss')}
-        Build: ${env.BUILD_NUMBER}
-        """
-        slackSend(
-          color: 'danger',
-          tokenCredentialId: 'SLACK_KEY',
-          message: message,
-          channel: '#lnd-2025-workshop'
-        )
+      withCredentials([string(credentialsId: 'SLACK_KEY', variable: 'SLACK_WEBHOOK')]) {
+        script {
+          def message = """
+          ❌ *Deployment Failed*
+          Project: web-performance-project1-initial
+          Server: newbie@118.69.34.46
+          Timestamp: ${new Date().format('yyyy-MM-dd HH:mm:ss')}
+          Build: ${env.BUILD_NUMBER}
+          """
+          def payload = [
+            channel: '#lnd-2025-workshop',
+            username: 'Jenkins',
+            icon_emoji: ':x:',
+            attachments: [[
+              color: 'danger',
+              text: message
+            ]]
+          ]
+          sh """
+            curl -X POST -H 'Content-type: application/json' \\
+            --data '${groovy.json.JsonBuilder(payload).toPrettyString()}' \\
+            ${SLACK_WEBHOOK}
+          """
+        }
       }
     }
   }
