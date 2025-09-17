@@ -106,7 +106,7 @@ pipeline {
       echo '=== Build succeeded ==='
       script {
         def message = "✅ Build Success - Build ${env.BUILD_NUMBER}"
-        slackSend(channel: '#lnd-2025-workshop', color: 'good', tokenCredentialId: 'SLACK_KEY', message: message)
+        slackSend(channel: '#lnd-2025-workshop', color: 'good', tokenCredentialId: 'SLACK_TOKEN', message: message)
         echo message
       }
     }
@@ -114,7 +114,7 @@ pipeline {
       echo '=== Build failed ==='
       script {
         def message = "❌ Build Failed - Build ${env.BUILD_NUMBER}"
-        slackSend(channel: '#lnd-2025-workshop', color: 'danger', tokenCredentialId: 'SLACK_KEY', message: message)
+        slackSend(channel: '#lnd-2025-workshop', color: 'danger', tokenCredentialId: 'SLACK_TOKEN', message: message)
         echo message
       }
     }
