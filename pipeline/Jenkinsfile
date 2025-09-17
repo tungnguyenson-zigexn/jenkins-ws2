@@ -118,12 +118,9 @@ pipeline {
               "channel": "#lnd-2025-workshop",
               "username": "Jenkins",
               "icon_emoji": ":white_check_mark:",
-              "attachments": [{
-                "color": "good",
-                "text": "${message.replace('"', '\\"')}"
-              }]
+              "text": "${message.replace('"', '\\"').replace('\n', '\\n')}"
             }' \\
-            ${SLACK_WEBHOOK}
+            '${SLACK_WEBHOOK}'
           """
         }
       }
@@ -144,12 +141,9 @@ pipeline {
               "channel": "#lnd-2025-workshop",
               "username": "Jenkins",
               "icon_emoji": ":x:",
-              "attachments": [{
-                "color": "danger",
-                "text": "${message.replace('"', '\\"')}"
-              }]
+              "text": "${message.replace('"', '\\"').replace('\n', '\\n')}"
             }' \\
-            ${SLACK_WEBHOOK}
+            '${SLACK_WEBHOOK}'
           """
         }
       }
