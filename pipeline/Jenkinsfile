@@ -27,26 +27,10 @@ pipeline {
             # Change to workspace directory
             cd "$WORKSPACE"
 
-            # Check and create directory on server
+            # Create directory on server
             ssh -i "$SSH_KEY_FILE" -p 3334 -o StrictHostKeyChecking=no newbie@118.69.34.46 "
-              # Set directory variable
-              DEPLOY_DIR='/usr/share/nginx/html/jenkins/tungnguyen'
-
-              # Check if directory exists
-              if [ ! -d \"\$DEPLOY_DIR\" ]; then
-                echo \"Directory \$DEPLOY_DIR does not exist, creating...\"
-                # Try without sudo first
-                if mkdir -p \"\$DEPLOY_DIR\" 2>/dev/null; then
-                  echo \"Directory created successfully without sudo\"
-                else
-                  echo \"Cannot create without sudo, trying with sudo...\"
-                  sudo mkdir -p \"\$DEPLOY_DIR\"
-                  sudo chown newbie:newbie \"\$DEPLOY_DIR\"
-                  echo \"Directory created successfully with sudo\"
-                fi
-              else
-                echo \"Directory \$DEPLOY_DIR already exists\"
-              fi
+              mkdir -p /usr/share/nginx/html/jenkins/tungnguyen
+              echo 'Directory created successfully'
             "
           '''
         }
