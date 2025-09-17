@@ -29,18 +29,18 @@ pipeline {
 
             # Check and create directory on server
             ssh -i "$SSH_KEY_FILE" -p 3334 -o StrictHostKeyChecking=no newbie@118.69.34.46 "
+              # Set directory variable
+              DEPLOY_DIR='/usr/share/nginx/html/jenkins/tungnguyen'
+
               # Check if directory exists
-              if [ ! -d '/usr/share/nginx/html/jenkins/tungnguyen' ]; then
-                echo 'Directory /usr/share/nginx/html/jenkins/tungnguyen does not exist, creating...'
-                sudo mkdir -p /usr/share/nginx/html/jenkins/tungnguyen
-                sudo chown newbie:newbie /usr/share/nginx/html/jenkins/tungnguyen
+              if [ ! -d '\$DEPLOY_DIR' ]; then
+                echo 'Directory \$DEPLOY_DIR does not exist, creating...'
+                sudo mkdir -p '\$DEPLOY_DIR'
+                sudo chown newbie:newbie '\$DEPLOY_DIR'
                 echo 'Directory created successfully'
               else
-                echo 'Directory /usr/share/nginx/html/jenkins/tungnguyen already exists'
+                echo 'Directory \$DEPLOY_DIR already exists'
               fi
-
-              # Show directory info
-              ls -la /usr/share/nginx/html/jenkins/
             "
           '''
         }
