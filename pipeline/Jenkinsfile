@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+  environment {
+    SLACK_CHANNEL = '#lnd-2025-workshop'
+  }
+
   stages {
     stage('Checkout') {
       steps {
@@ -97,6 +101,43 @@ pipeline {
             echo "🎉 Deployment completed successfully!"
           '''
         }
+      }
+    }
+  }
+
+  post {
+    success {
+      script {
+        def message = """
+        ✅ *Deployment Successful*
+        Project: web-performance-project1-initial
+        Server: newbie@118.69.34.46
+        Timestamp: ${new Date().format('yyyy-MM-dd HH:mm:ss')}
+        Build: ${env.BUILD_NUMBER}
+        """
+        slackSend(
+          channel: env.SLACK_CHANNEL,
+          color: 'good',
+          tokenCredentialId: 'SLACK_KEY',
+          message: message
+        )
+      }
+    }
+    failure {
+      script {
+        def message = """
+        ❌ *Deployment Failed*
+        Project: web-performance-project1-initial
+        Server: newbie@118.69.34.46
+        Timestamp: ${new Date().format('yyyy-MM-dd HH:mm:ss')}
+        Build: ${env.BUILD_NUMBER}
+        """
+        slackSend(
+          channel: env.SLACK_CHANNEL,
+          color: 'danger',
+          tokenCredentialId: 'SLACK_KEY',
+          message: message
+        )
       }
     }
   }
