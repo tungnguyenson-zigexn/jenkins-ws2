@@ -89,14 +89,7 @@ pipeline {
             # Cleanup old deployments (keep only 5 latest versions)
             echo "==> Cleaning up old deployments (keeping 5 latest versions)..."
             ssh -i "$SSH_KEY_FILE" -p $SSH_PORT -o StrictHostKeyChecking=no $DEPLOY_SERVER "
-              cd $DEPLOY_DIR/$PROJECT_NAME/deploy
-
-              echo \"Current directories:\"
-              ls -la
-
-              # Ansible-style cleanup: simple and effective
-              echo \"Cleaning up old deployments...\"
-              ls -1t | grep -v '^current$' | tail -n +5 | xargs -r rm -rf
+              cd $DEPLOY_DIR/$PROJECT_NAME/deploy && ls -1t | tail -n +6 | xargs -r rm -rf
 
               echo \"✅ Cleanup completed. Kept 5 latest versions.\"
             "
