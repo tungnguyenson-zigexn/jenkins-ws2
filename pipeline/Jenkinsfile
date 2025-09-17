@@ -64,7 +64,7 @@ pipeline {
 
             # Create deployment package
             echo "==> Creating deployment package..."
-            tar -czf deploy.tar.gz index.html 404.html css js images
+            tar -czf deploy.tar.gz .
             echo "✅ Package created: deploy.tar.gz"
 
             # Upload to server
